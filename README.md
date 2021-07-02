@@ -6,12 +6,16 @@ Since the computational resource of the NXT brick is very limmited, the Coral bo
 
 ## Required Hardware:
 1- Coral Dev Board. (+ required cables + required power source)
+
 2- NXT. (+ required cables + required motor/sensor lego parts)
 
 ## Software Platform:
 1- Python
+
 2- nxt-Pi
+
 3- Tensorflow (/lite)
+
 4- 
 
 ## Sub projects:
