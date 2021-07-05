@@ -13,37 +13,30 @@ from pynput import keyboard
 
 #nxt.locator.make_config()
 
-sens = 360
-sensTurn = 60
-curSens = 5
-power = 10
+step_dr = 300
+step_st = 100
+step_cam = 20
 
-brick = nxt.locator.find_one_brick(debug=True)
-left = nxt.Motor(brick, PORT_B)
-right = nxt.Motor(brick, PORT_C)
-both = nxt.SynchronizedMotors(left, right, 0)
-camera = nxt.Motor(brick, PORT_A)
-leftboth = nxt.SynchronizedMotors(left, right, 100)
-rightboth = nxt.SynchronizedMotors(right, left, 100)
-guideLight = nxt.Color20(brick, PORT_4)
-#frontSense = nxt.Ultrasonic(brick, PORT_1)
 
-blue = Type.COLORBLUE
-green = Type.COLORGREEN
-red = Type.COLORRED
-off = Type.COLORNONE
-curCol = off
-guideLight.set_light_color(curCol)
-curCol = green
+power_dr = 90
+power_st = 100
+power_cam = 20
 camDeg = 0
 
-camera.turn(power, sens, False)
+
+brick = nxt.locator.find_one_brick(debug=True)
+camera = nxt.Motor(brick, PORT_A)
+drive = nxt.Motor(brick, PORT_B)
+steer = nxt.Motor(brick, PORT_C)
+
+#frontSense = nxt.Ultrasonic(brick, PORT_1)
+
+
 
 
 def getchar():
     print('Press a command key:')
     with keyboard.Events() as events:
-    # Block for as much as possible
         event = events.get(1.0)
         if isinstance(event, type(None)):
             ch = ' '
@@ -56,23 +49,22 @@ print("Ready")
 
 while ch != keyboard.KeyCode.from_char('q'):
     ch = getchar()
-    #print(ch)
     if ch == keyboard.KeyCode.from_char('w'):
         print("Forwards")
-        both.turn(power, sens, False)
+        drive.turn(power_dr, step_dr, brake=False)
     elif ch == keyboard.KeyCode.from_char('s'):
         print("Backwards")
-        both.turn(-power, sens, False)
-        print('Backup Room:', frontSense.get_sample())
+        drive.turn(-power_dr, step_dr, brake=False)
+        #print('Backup Room:', frontSense.get_sample())
     elif ch == keyboard.KeyCode.from_char('a'):
         print("Left")
-        leftboth.turn(100, sensTurn, False)
+        steer.turn(power_st, step_st, False)
     elif ch == keyboard.KeyCode.from_char('d'):
         print("Right")
-        rightboth.turn(100, sensTurn, False)
+        steer.turn(-power_st, step_st, False)
     elif ch == keyboard.KeyCode.from_char('b'):
         print('Space in front:', frontSense.get_sample())
-    elif ch == keyboard.KeyCode.from_char('e'):
+'''    elif ch == keyboard.KeyCode.from_char('e'):
         if camDeg == 0:
             print("Camera cannot go lower")
         else:
@@ -86,17 +78,14 @@ while ch != keyboard.KeyCode.from_char('q'):
             print("Camera Up:", camDeg)
             camera.turn(-25, 20, True)
             camDeg = camDeg + 1
-
-    elif ch == keyboard.KeyCode.from_char('z'):
-        rightboth.turn(100, 3600, False)
-        leftboth.turn(-100, 3600, False)
-        print("Spin")
+'''
+'''
 if camDeg == 3:
     camera.turn(25, 60, False)
 elif camDeg == 2:
     camera.turn(25, 40, False)
 elif camDeg == 1:
     camera.turn(25, 20, False)
-guideLight.set_light_color(off)
+'''
 brick.sock.close()
 print("Finished")
