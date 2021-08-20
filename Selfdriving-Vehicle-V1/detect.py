@@ -33,7 +33,7 @@ import time
 
 from pycoral.adapters import detect
 from pycoral.utils import edgetpu
-from Control import zero_steering, tracking, LoadBrick
+from control import zero_steering, tracking
 
 import svg
 import utils
@@ -94,7 +94,6 @@ def overlay(title, objs, get_color, labels, inference_time, inference_rate, layo
         t = svg.Text(x=x, y=y+h, fill='black')
         t += svg.TSpan(caption, dy='1em')
         doc += t
-        #MY# print('ID: {}, X={}, Y={}'.format(labels.get(obj.id, obj.id), x+w/2, y+h/2))
 
     ox = x0 + 20
     oy1, oy2 = y0 + 20 + font_size, y0 + height - 20
@@ -124,7 +123,7 @@ def print_results(inference_rate, objs):
     for i, obj in enumerate(objs):
         print('    %d: %s, area=%.2f' % (i, obj, obj.bbox.area))
 
-def render_gen(args):
+def render_gen(args, brick):
     fps_counter = utils.avg_fps_counter(30)
 
     interpreters, titles = utils.make_interpreters(args.model)
@@ -144,9 +143,8 @@ def render_gen(args):
     output = None
     t0 = time.time()  # MY
     t_OLD = 0  # My
-    brick = LoadBrick()  # My
-    brick.calibrate()  # My
     brick_en = True  # My
+
     while True:
         tensor, layout, command = (yield output)
 
@@ -176,8 +174,8 @@ def render_gen(args):
         elif command == 'n':
             interpreter = next(interpreters)
         ##MY##
-        target_name = 'apple'
-        target_threshold = 0.2
+        target_name = 'banana'
+        target_threshold = 0.15
         if brick_en:
             if brick.enable_key.get_sample():
                 t = time.time() - t0
@@ -192,28 +190,29 @@ def render_gen(args):
                                 inference_width, inference_height = layout.inference_size
                                 bbox = obj.bbox.scale(1.0 / inference_width, 1.0 / inference_height).scale(*layout.size)
                                 x, y, w, h = bbox.xmin, bbox.ymin, bbox.width, bbox.height
-                                target_x = x + w / 2
-                                target_y = y + h / 2
+                                target_x = (x + w / 2) / width - 1
+                                target_y = ((y + h / 2) / height - 1) * -2
                                 target_score = obj.score
                     if target_score > 0:
                         print('{} with score {} % at X={}, Y={}'.format(target_name, target_score * 100, target_x,
                                                                         target_y))
-                        tracking(brick, target_x, target_y, args)
-                        t_OLD = t
+                    tracking(brick, target_x, target_y, args)
+                    t_OLD = t
             else:
                 zero_steering(brick, args.power_st)
                 time.sleep(1)
                 brick.turn_off()
+                brick_en = False
                 print('The link with NXT brick is deactivated.')
 
         ##MY##
-        
+
 
 def add_render_gen_args(parser):
     parser.add_argument('--model',
-                        help='.tflite model path', required=True)
+                        help='.tflite model path')
     parser.add_argument('--labels',
-                        help='labels file path', required=True)
+                        help='labels file path')
     parser.add_argument('--top_k', type=int, default=50,
                         help='Max number of objects to detect')
     parser.add_argument('--threshold', type=float, default=0.1,

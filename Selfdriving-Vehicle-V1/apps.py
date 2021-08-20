@@ -19,13 +19,15 @@ import signal
 from camera import make_camera
 from gstreamer import Display, run_gen
 from streaming.server import StreamingServer
-import Control
+
+from control import add_control_args
 import svg
 
 EMPTY_SVG = str(svg.Svg())
 
-def run_server(add_render_gen_args, render_gen, raw_args=None):
-    global brick
+def run_server(add_render_gen_args, render_gen, args=None):
+    raw_args, brick = args  # My
+
     logging.basicConfig(level=logging.INFO)
 
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -38,10 +40,10 @@ def run_server(add_render_gen_args, render_gen, raw_args=None):
                         help='Loop input video file')
 
     add_render_gen_args(parser)
-    Control.add_control_args(parser)
+    add_control_args(parser)
     args = parser.parse_args(raw_args)
 
-    gen = render_gen(args)
+    gen = render_gen(args, brick)
     camera = make_camera(args.source, next(gen), args.loop)
     assert camera is not None
 
@@ -51,6 +53,7 @@ def run_server(add_render_gen_args, render_gen, raw_args=None):
             server.send_overlay(overlay if overlay else EMPTY_SVG)
 
         camera.render_overlay = render_overlay
+        print('test2')
         signal.pause()
 
 
