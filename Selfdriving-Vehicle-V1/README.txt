@@ -14,4 +14,7 @@ Camera Servo - Port A
 Ultrasonic Sensor - Port 1
 
 To run:
-python3 selfdriving.py
+python3 selfdriving.py --model /.../mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite /
+    --labels /.../coco_labels.txt /
+    --target_label banana /
+    --target_threshold 0.15
