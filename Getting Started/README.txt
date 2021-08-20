@@ -24,3 +24,6 @@ Light On - l
 Toggle Light (red/green/blue) - t
 Light Off - o
 Quit - q
+
+To run:
+python3 freeControl.py

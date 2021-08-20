@@ -10,6 +10,10 @@ def main_arg_parser():
                              help='.tflite model path')
     parser_main.add_argument('--labels', default='/usr/Project/google-coral/models/coco_labels.txt',
                              help='labels file path')
+    parser_main.add_argument('--target_label', default='banana',
+                             help='Label of the target object to follow')
+    parser_main.add_argument('--target_threshold', type=float, default=0.15,
+                             help='Threshold of the target object')
     add_control_args(parser_main)
     args = parser_main.parse_args()
     return args
@@ -24,6 +28,8 @@ def main():
 
     args = (['--model', args_main.model,
              '--labels', args_main.labels,
+             '--target_label', args_main.target_label,
+             '--target_threshold', args_main.target_threshold,
              '--control_dt', str(args_main.control_dt),
              '--straight_threshold', str(args_main.straight_threshold),
              '--step_dr', str(args_main.step_dr),

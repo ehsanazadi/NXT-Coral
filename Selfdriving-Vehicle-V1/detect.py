@@ -174,8 +174,8 @@ def render_gen(args, brick):
         elif command == 'n':
             interpreter = next(interpreters)
         ##MY##
-        target_name = 'banana'
-        target_threshold = 0.15
+        target_label = args.target_label
+        target_threshold = args.target_threshold
         if brick_en:
             if brick.enable_key.get_sample():
                 t = time.time() - t0
@@ -184,7 +184,7 @@ def render_gen(args, brick):
                     target_y = -1
                     target_score = 0
                     for obj in objs:
-                        if labels.get(obj.id, obj.id) == target_name:
+                        if labels.get(obj.id, obj.id) == target_label:
                             # Finding the target with the largest score
                             if obj.score > target_threshold and obj.score > target_score:
                                 inference_width, inference_height = layout.inference_size
@@ -194,7 +194,7 @@ def render_gen(args, brick):
                                 target_y = ((y + h / 2) / height - 1) * -2
                                 target_score = obj.score
                     if target_score > 0:
-                        print('{} with score {} % at X={}, Y={}'.format(target_name, target_score * 100, target_x,
+                        print('{} with score {} % at X={}, Y={}'.format(target_label, target_score * 100, target_x,
                                                                         target_y))
                     tracking(brick, target_x, target_y, args)
                     t_OLD = t
@@ -213,6 +213,10 @@ def add_render_gen_args(parser):
                         help='.tflite model path')
     parser.add_argument('--labels',
                         help='labels file path')
+    parser.add_argument('--target_label', default=None,
+                             help='The label of the target object to follow')
+    parser.add_argument('--target_threshold', type=float, default=None,
+                             help='Threshold of the target object')
     parser.add_argument('--top_k', type=int, default=50,
                         help='Max number of objects to detect')
     parser.add_argument('--threshold', type=float, default=0.1,
