@@ -29,7 +29,7 @@ def main():
     args = (['--model', args_main.model,
              '--labels', args_main.labels,
              '--target_label', args_main.target_label,
-             '--target_threshold', args_main.target_threshold,
+             '--target_threshold', str(args_main.target_threshold),
              '--control_dt', str(args_main.control_dt),
              '--straight_threshold', str(args_main.straight_threshold),
              '--step_dr', str(args_main.step_dr),
