@@ -45,10 +45,8 @@ def main():
              '--prox_front', str(args_main.prox_front)],
             brick)
     if args_main.server_mode.lower() in ['true', 't']:
-        print('Server')
         detect_server_main(args)
     else:
-        print('detect')
         detect_main(args)
 
 
