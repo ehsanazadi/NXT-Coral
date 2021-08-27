@@ -14,7 +14,14 @@ Camera Servo - Port A
 Ultrasonic Sensor - Port 1
 
 To run:
+python3 selfdriving.py
+
+for more detailed input arguments:
 python3 selfdriving.py --model /.../mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite /
     --labels /.../coco_labels.txt /
     --target_label banana /
-    --target_threshold 0.15
+    --target_threshold 0.15 /
+    --server_mode False
+
+If you are running in the server mode open a browser in the client and go to the address:
+http://192.168.100.2:4664/
