@@ -1,19 +1,22 @@
 from control import LoadBrick, add_control_args
 from detect_server import main as detect_server_main
+from detect import main as detect_main
 import argparse
 
 
 def main_arg_parser():
     parser_main = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser_main.add_argument('--model',
-                             default='/usr/Project/google-coral/models/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite',
+                             default='./models/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite',
                              help='.tflite model path')
-    parser_main.add_argument('--labels', default='/usr/Project/google-coral/models/coco_labels.txt',
+    parser_main.add_argument('--labels', default='./models/coco_labels.txt',
                              help='labels file path')
-    parser_main.add_argument('--target_label', default='banana',
+    parser_main.add_argument('--target_label', default='cell phone',
                              help='Label of the target object to follow')
     parser_main.add_argument('--target_threshold', type=float, default=0.15,
                              help='Threshold of the target object')
+    parser_main.add_argument('--server_mode', default='True',
+                             help='Run in server mode.')
     add_control_args(parser_main)
     args = parser_main.parse_args()
     return args
@@ -41,7 +44,12 @@ def main():
              '--max_steer_angle', str(args_main.max_steer_angle),
              '--prox_front', str(args_main.prox_front)],
             brick)
-    detect_server_main(args)
+    if args_main.server_mode.lower() in ['true', 't']:
+        print('Server')
+        detect_server_main(args)
+    else:
+        print('detect')
+        detect_main(args)
 
 
 if __name__ == '__main__':

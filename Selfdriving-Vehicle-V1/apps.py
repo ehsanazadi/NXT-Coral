@@ -57,7 +57,9 @@ def run_server(add_render_gen_args, render_gen, args=None):
         signal.pause()
 
 
-def run_app(add_render_gen_args, render_gen):
+def run_app(add_render_gen_args, render_gen, args=None):
+    raw_args, brick = args  # My
+    
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--source',
                         help='/dev/videoN:FMT:WxH:N/D or .mp4 file or image file',
@@ -67,9 +69,10 @@ def run_app(add_render_gen_args, render_gen):
     parser.add_argument('--displaymode', type=Display, choices=Display, default=Display.FULLSCREEN,
                         help='Display mode')
     add_render_gen_args(parser)
-    args = parser.parse_args()
+    add_control_args(parser)
+    args = parser.parse_args(raw_args)
 
-    if not run_gen(render_gen(args),
+    if not run_gen(render_gen(args, brick),
                    source=args.source,
                    loop=args.loop,
                    display=args.displaymode):

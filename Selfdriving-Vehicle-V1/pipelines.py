@@ -140,6 +140,7 @@ def camera_streaming_pipeline(fmt, profile, bitrate, layout):
           Caps('video/x-h264', profile=profile),
           Filter('h264parse'),
           Caps('video/x-h264', stream_format='byte-stream', alignment='nal'),
+#          "filesink location=test.mov "],
           h264_sink()],
         [Pad('t'),
          Queue(),

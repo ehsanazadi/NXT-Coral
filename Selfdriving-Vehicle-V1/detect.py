@@ -30,6 +30,7 @@ import argparse
 import colorsys
 import itertools
 import time
+import math
 
 from pycoral.adapters import detect
 from pycoral.utils import edgetpu
@@ -64,7 +65,7 @@ def make_get_color(color, labels):
 
     return lambda obj_id: 'white'
 
-def overlay(title, objs, get_color, labels, inference_time, inference_rate, layout):
+def overlay(title, objs, get_color, labels, inference_time, inference_rate, layout, target_label=None):
     x0, y0, width, height = layout.window
     font_size = 0.03 * height
 
@@ -76,6 +77,9 @@ def overlay(title, objs, get_color, labels, inference_time, inference_rate, layo
                   font_size=font_size, font_family='monospace', font_weight=500)
     doc += defs
 
+    target_x = -1
+    target_y = -1
+    target_score = 0
     for obj in objs:
         percent = int(100 * obj.score)
         if labels:
@@ -87,11 +91,25 @@ def overlay(title, objs, get_color, labels, inference_time, inference_rate, layo
         inference_width, inference_height = layout.inference_size
         bbox = obj.bbox.scale(1.0 / inference_width, 1.0 / inference_height).scale(*layout.size)
         x, y, w, h = bbox.xmin, bbox.ymin, bbox.width, bbox.height
-        doc += svg.Rect(x=x, y=y, width=w, height=h,
-                        style='stroke:%s' % color, _class='bbox')
-        doc += svg.Rect(x=x, y=y+h ,
-                        width=size_em(len(caption)), height='1.2em', fill=color)
-        t = svg.Text(x=x, y=y+h, fill='black')
+        if labels.get(obj.id, obj.id) == target_label:
+            for count in range(5):
+                doc += svg.Circle(cx=x + w / 2, cy=y + h / 2, r=0.25 * math.sqrt(w ** 2 + h ** 2) + count,
+                                  style='stroke:%s' % color, _class='bbox')
+
+            doc += svg.Rect(x=x + w / 2, y=y + h,
+                            width=size_em(len(caption)), height='1.2em', fill=color)
+            t = svg.Text(x=x + w / 2, y=y + h, fill='black')
+            if obj.score > target_score:
+                target_x = x + w / 2
+                target_y = y + h / 2
+                target_score = obj.score
+        else:
+            doc += svg.Rect(x=x, y=y, width=w, height=h,
+                            style='stroke:%s' % color, _class='bbox')
+            doc += svg.Rect(x=x, y=y + h,
+                            width=size_em(len(caption)), height='1.2em', fill=color)
+            t = svg.Text(x=x, y=y + h, fill='black')
+
         t += svg.TSpan(caption, dy='1em')
         doc += t
 
@@ -100,15 +118,24 @@ def overlay(title, objs, get_color, labels, inference_time, inference_rate, layo
 
     # Title
     if title:
-        doc += svg.Rect(x=0, y=0, width=size_em(len(title)), height='1em',
-                        transform='translate(%s, %s) scale(1,-1)' % (ox, oy1), _class='back')
-        doc += svg.Text(title, x=ox, y=oy1, fill='white')
+        titles = ['Project NXT-Coral _ object detection with pre-trained model:', title]
+        for i, title_i in enumerate(titles):
+            y = oy1 + i * 1.7 * font_size
+            doc += svg.Rect(x=0, y=0, width=size_em(len(title_i)), height='1em',
+                            transform='translate(%s, %s) scale(1,-1)' % (ox, y), _class='back')
+            doc += svg.Text(title_i, x=ox, y=y, fill='white')
 
-    # Info
-    lines = [
-        'Objects: %d' % len(objs),
-        'Inference time: %.2f ms (%.2f fps)' % (inference_time * 1000, 1.0 / inference_time)
-    ]
+    #Info
+    if target_score > 0:
+        lines = [
+                 'Detected objects: %d' % len(objs),
+                 'Target %s is detected at x=%d and y=%d' %(target_label, target_x, target_y),
+                 'Inference time: %.2f ms (%.2f fps)' % (inference_time * 1000, 1.0 / inference_time)
+                ]
+    else:
+        lines = ['Detected objects: %d' % len(objs),
+                'Target %s is not detected!' % str(target_label),
+                'Inference time: %.2f ms (%.2f fps)' % (inference_time * 1000, 1.0 / inference_time)]
 
     for i, line in enumerate(reversed(lines)):
         y = oy2 - i * 1.7 * font_size
@@ -117,6 +144,7 @@ def overlay(title, objs, get_color, labels, inference_time, inference_rate, layo
         doc += svg.Text(line, x=ox, y=y, fill='white')
 
     return str(doc)
+
 
 def print_results(inference_rate, objs):
     print('\nInference (rate=%.2f fps):' % inference_rate)
@@ -165,7 +193,7 @@ def render_gen(args, brick):
                 print_results(inference_rate, objs)
 
             title = titles[interpreter]
-            output = overlay(title, objs, get_color, labels, inference_time, inference_rate, layout)
+            output = overlay(title, objs, get_color, labels, inference_time, inference_rate, layout, args.target_label)
         else:
             output = None
 
@@ -232,8 +260,8 @@ def add_render_gen_args(parser):
     parser.add_argument('--print', default=False, action='store_true',
                         help='Print inference results')
 
-def main():
-    run_app(add_render_gen_args, render_gen)
+def main(raw_args=None):
+    run_app(add_render_gen_args, render_gen, raw_args)
 
 if __name__ == '__main__':
     main()
