@@ -80,11 +80,11 @@ def _get_filenames_and_classes(dataset_dir):
     A list of image file paths, relative to `dataset_dir` and the list of
     subdirectories, representing class names.
   """
-  flower_root = os.path.join(dataset_dir, 'flower_photos')
+  lego_root = os.path.join(dataset_dir, 'lego_photos')
   directories = []
   class_names = []
-  for filename in os.listdir(flower_root):
-    path = os.path.join(flower_root, filename)
+  for filename in os.listdir(lego_root):
+    path = os.path.join(lego_root, filename)
     if os.path.isdir(path):
       directories.append(path)
       class_names.append(filename)
@@ -99,7 +99,7 @@ def _get_filenames_and_classes(dataset_dir):
 
 
 def _get_dataset_filename(dataset_dir, split_name, shard_id):
-  output_filename = 'flowers_%s_%05d-of-%05d.tfrecord' % (
+  output_filename = 'legos_%s_%05d-of-%05d.tfrecord' % (
       split_name, shard_id, _NUM_SHARDS)
   return os.path.join(dataset_dir, output_filename)
 
