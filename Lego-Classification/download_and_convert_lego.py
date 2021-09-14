@@ -36,7 +36,7 @@ import tensorflow as tf
 
 from datasets import dataset_utils
 
-# The address where the Flowers data is located.
+# The address where the Lego data is located.
 _DATA_source = './models/research/slim/legotrain/dataset/'
 
 # The number of images in the validation set.
@@ -156,11 +156,11 @@ def _clean_up_temporary_files(dataset_dir):
   Args:
     dataset_dir: The directory where the temporary files are stored.
   """
-  filename = _DATA_URL.split('/')[-1]
+  filename = 'lego'
   filepath = os.path.join(dataset_dir, filename)
   tf.gfile.Remove(filepath)
 
-  tmp_dir = os.path.join(dataset_dir, 'flower_photos')
+  tmp_dir = os.path.join(dataset_dir, 'lego_photos')
   tf.gfile.DeleteRecursively(tmp_dir)
 
 
@@ -185,9 +185,10 @@ def run(dataset_dir):
 
   if _dataset_exists(dataset_dir):
     print('Dataset files already exist. Exiting without re-creating them.')
-    return
+    #return
 
-  dataset_utils.download_and_uncompress_tarball(_DATA_URL, dataset_dir)
+  print(dataset_dir)
+  #dataset_utils.download_and_uncompress_tarball(_DATA_URL, dataset_dir)
   photo_filenames, class_names = _get_filenames_and_classes(dataset_dir)
   class_names_to_ids = dict(zip(class_names, range(len(class_names))))
 
@@ -208,4 +209,4 @@ def run(dataset_dir):
   dataset_utils.write_label_file(labels_to_class_names, dataset_dir)
 
   _clean_up_temporary_files(dataset_dir)
-  print('\nFinished converting the Flowers dataset!')
+  print('\nFinished converting the Lego dataset!')
