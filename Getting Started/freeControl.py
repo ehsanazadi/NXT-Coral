@@ -27,7 +27,7 @@ camera = nxt.Motor(brick, PORT_A)
 drive = nxt.Motor(brick, PORT_B)
 steer = nxt.Motor(brick, PORT_C)
 
-frontSense = nxt.Ultrasonic(brick, PORT_1)
+frontSense = nxt.Ultrasonic(brick, PORT_2)
 
 
 def getchar():

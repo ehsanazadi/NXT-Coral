@@ -76,7 +76,7 @@ def steer_command(brick_name, power, steer_val):
         power = abs(power)
 
     if motor_idle(brick_name.steer):
-        brick_name.steer.turn(-np.sign(steer_val) * power, abs(int(abs(steer_val) - 35)), False) # The tuning parameter 30 is a sort of magic
+        brick_name.steer.turn(-np.sign(steer_val) * power, abs(int(abs(steer_val) - 3)), False) # The tuning parameter 30 is a sort of magic
         brick_name.steer_angle = brick_name.steer_angle + steer_val
         print('Steering angle = ', brick_name.steer_angle)
     else:
@@ -116,6 +116,7 @@ def tracking(brick, x_target, y_target, args_control):
         else:
             if motor_idle(brick.drive):
                 brick.drive.run(args_control.power_dr)
+
             if -args_control.straight_threshold <= x_target <= args_control.straight_threshold:  # Target straight a head
                 print('Move forward')
                 # brick.drive.turn(power_dr, step_dr, brake=False)
