@@ -1,0 +1,9 @@
+#Linux packages:
+#libbluetooth-dev
+#libusb-dev
+#Python packages:
+pybluez
+pyusb
+nxt-python
+pynput
+numpy
